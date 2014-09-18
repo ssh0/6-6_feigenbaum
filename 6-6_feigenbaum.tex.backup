@@ -1,0 +1,110 @@
+\documentclass{jsarticle}
+\usepackage{moreverb}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{float}
+
+
+\title{計算機実習 問題6.6 - ファイゲンバウム定数の評価}
+\author{早稲田大学先進理工学部物理学科 B4 藤本將太郎}
+\date{2014/04/30}
+
+\begin{document}
+
+\maketitle
+
+\section{シミュレーションの目的}
+すでに問題6.2で見たように、隣り合う分岐の間の$r$の領域は周期の増大にしたがって小さくなる(表\ref{tab:t1})。例えば、$b_{2}-b_{1}=0.2398$、$b_{3}-b_{2}=0.023624$、$b_{4}-b_{3}=0.00508$となっているので、$b_{k}-b_{k-1}$が等比的、つまり一定の比$(b_{k}-b_{k-1})/(b_{k+1}-b_{k})$で減少すると推定してよいであろう。この比は正確に一定にはならないが、$k$が大きくなるとともに一定値に近づくことを確かめることができる。これは$b_{k}$の数列には極限があり、
+
+\begin{equation}
+  b_{k} \approx r_{\infty} -c \delta ^{-k}\ \ \ (cは定数)
+  \label{eq:e1}
+\end{equation}
+
+のように等比的に漸近すると考えられる。ここで$\delta$はファイゲンバウム(Feigenbaum)定数と呼ばれている。式(\ref{eq:e1})から$\delta$は比
+
+\begin{equation}
+ \delta = \lim_{k \rightarrow \infty} \displaystyle\frac{b_{k}-b_{k-1}}{b_{k+1}-b_{k}}
+\end{equation}
+
+で与えられる。
+
+\begin{table}[htbp]
+\begin{center}
+  \caption{$k$番目の分岐が生じる点における制御パラメータ$b_{k}$の値}
+  \begin{tabular}{cc}
+  $k$ & $b_{k}$  \\ \hline
+  1 & 0.750\ 000 \\
+  2 & 0.862\ 372 \\
+  3 & 0.886\ 023 \\
+  4 & 0.891\ 102 \\
+  5 & 0.892\ 100 \\
+  6 & 0.892\ 423 \\
+  7 & 0.892\ 473 \\
+  8 & 0.892\ 484 \\
+  \hline
+  \end{tabular}
+  \label{tab:t1}
+\end{center}
+\end{table}
+
+\section{作成したプログラム}
+Pythonを用いて作成したプログラムを以下に示す。
+ 
+ \listinginput{1}{_6-6_feigenbaum-a.py}
+ 上のプログラムでは表\ref{tab:t1}の数値$b_{k}$を使って$\delta_{k}=(b_{k}-b_{k-1})/(b_{k+1}-b_{k})$を$k$に対してプロットし、単純な相加平均によって$\delta$を求めることができる。
+ 
+ \listinginput{1}{_6-6_feigenbaum-fit.py}
+ 上のプログラムを実行すると、プログラム内で指定されたパラメータ初期値を用いて、最小2乗法により式(\ref{eq:e1})におけるパラメータ$c$、$r_{\infty}$を求めることができる。モジュールとしてscipyモジュールのoptimizeを用いている。
+
+\section{実習課題}
+
+\begin{enumerate}
+ \renewcommand{\labelenumi}{\alph{enumi}.}
+ \renewcommand{\labelenumii}{}
+
+ \item 作成したプログラムを使って、$\delta_{k}=(b_{k}-b_{k-1})/(b_{k+1}-b_{k})$を$k$に対してプロットし、$\delta$を求めよ。$b_{k}$の表\ref{tab:t1}に与えられた値の桁数はどの$k$についても十分か。最も精度よく求められている$\delta$の値は
+ 
+ \begin{equation}
+  \delta = 4.669\ 201\ 609\ 102\ 991 \cdots
+  \label{eq:e2}
+ \end{equation}
+
+ である。式(\ref{eq:e2})の小数点以下の桁は、$\delta$が高い精度で求められていることを示している。式(\ref{eq:e1})、式(\ref{eq:e2})および＄$b_{k}$の値を使って$r_{\infty}$の値を求めよ。
+
+ 
+  \begin{enumerate}
+   \item まず、$\delta_{k}=(b_{k}-b_{k-1})/(b_{k+1}-b_{k})$を$k$に対してプロットしたグラフを、図\ref{fig:f1}に示した。ここで単純に全体の相加平均を求め、その結果を直線にしてグラフに描いた。また、表\ref{tab:t1}に与えられた$b_{k}$の桁数について、$b_{k}$の間隔が$k$が大きくなるにつれて減少していくことを考えると、$b_{8}$の桁数などは十分であるとは言えないだろう。実際、平均値として得られた$\delta$が、精度よく求められている$\delta$の値に近いのに対して、本来$k$が大きいところでは収束するはずの$\delta_{k}$が、そこからずれた値となっていることも、$b_{8}$などの桁数が不足していることを表していると言える。\\
+   次に、最小2乗法により式(\ref{eq:e1})におけるパラメータ$c$、$r_{\infty}$を求め、その結果を表\ref{tab:t2}に示す。ここで得られた値$t_{infty}=0.892546164091$は、非常に正確に調べられていて、その値は$r_{infty}=0.892 486 417 967 \cdots$である
+
+   \begin{figure}[H]
+    \begin{center}
+     \includegraphics[width=17.0cm]{figure_1.pdf}
+     \caption{$\delta_{k}$を$k$に対してプロットしたグラフ}
+     \label{fig:f1}
+    \end{center}
+   \end{figure}
+   
+   \begin{table}[htbp]
+    \begin{center}
+     \caption{最小2乗法によって式\ref{eq:e1}にフィッティングした時のパラメータの値}
+     \begin{tabular}{cc}
+      パラメータ & 値  \\ \hline
+	$c$ & 0.665237682254 \\
+	$r_{\infty}$ & 0.892546164091 \\
+	\hline
+     \end{tabular}
+     \label{tab:t2}
+    \end{center}
+   \end{table}
+   
+  \end{enumerate}
+\end{enumerate}
+\section{まとめ}
+ロジスティック写像の定性的な特徴を、Bifurcation-Diaglamを作成することにより確認することができた。
+
+\section{参考文献}
+\begin{itemize}
+ \item ハーベイ・ゴールド,ジャン・トボチニク,石川正勝・宮島佐介訳『計算物理学入門』,ピアソン・エデュケーション, 2000.
+\end{itemize}
+
+\end{document}
